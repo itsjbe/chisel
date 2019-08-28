@@ -10,9 +10,9 @@ import (
 	"strconv"
 	"strings"
 
-	chclient "github.com/jpillora/chisel/client"
-	chserver "github.com/jpillora/chisel/server"
-	chshare "github.com/jpillora/chisel/share"
+	chclient "github.com/aus/chisel/client"
+	chserver "github.com/aus/chisel/server"
+	chshare "github.com/aus/chisel/share"
 )
 
 var help = `
@@ -252,6 +252,8 @@ var clientHelp = `
       socks
       5000:socks
       R:2222:localhost:22
+      R:socks
+      R:5000:socks
 
     When the chisel server has --socks5 enabled, remotes can
     specify "socks" in place of remote-host and remote-port.
@@ -263,6 +265,8 @@ var clientHelp = `
     be prefixed with R to denote that they are reversed. That
     is, the server will listen and accept connections, and they
     will be proxied through the client which specified the remote.
+    Reverse remotes specifying "R:socks" will terminate a connection
+    at the client's internal SOCKS5 proxy.
 
   Options:
 
@@ -288,9 +292,11 @@ var clientHelp = `
     --max-retry-interval, Maximum wait time before retrying after a
     disconnection. Defaults to 5 minutes.
 
-    --proxy, An optional HTTP CONNECT proxy which will be used reach
-    the chisel server. Authentication can be specified inside the URL.
+    --proxy, An optional HTTP CONNECT or SOCKS5 proxy which will be
+    used to reach the chisel server. Authentication can be specified
+    inside the URL.
     For example, http://admin:password@my-server.com:8081
+             or: socks://admin:password@my-server.com:1080
 	
     --header, Set a custom header in the form "HeaderName: HeaderContent".
     Can be used multiple times. (e.g --header "Foo: Bar" --header "Hello: World")
@@ -338,7 +344,7 @@ func parseClientFlags(args []string) (config chclient.Config, pid *bool, verbose
 		KeepAlive:        *keepalive,
 		MaxRetryCount:    *maxRetryCount,
 		MaxRetryInterval: *maxRetryInterval,
-		HTTPProxy:        *proxy,
+		Proxy:            *proxy,
 		Server:           args[0],
 		Remotes:          args[1:],
 		Headers:          headers.Header,
