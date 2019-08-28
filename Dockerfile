@@ -7,7 +7,8 @@ ENV CGO_ENABLED 0
 ADD . /src
 WORKDIR /src
 RUN go build \
-    -ldflags "-X github.com/jpillora/chisel/share.BuildVersion=$(git describe --abbrev=0 --tags)" \
+    -mod vendor \
+    -ldflags "-X github.com/aus/chisel/share.BuildVersion=$(git describe --abbrev=0 --tags)" \
     -o chisel
 # container stage
 FROM alpine

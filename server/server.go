@@ -12,9 +12,10 @@ import (
 
 	socks5 "github.com/armon/go-socks5"
 	"github.com/gorilla/websocket"
-	chshare "github.com/jpillora/chisel/share"
 	"github.com/jpillora/requestlog"
 	"golang.org/x/crypto/ssh"
+
+	"github.com/aus/chisel/share"
 )
 
 // Config is the configuration for the chisel service
