@@ -39,10 +39,3 @@ jobs:
         name: chisel
         # Directory containing files to upload
         path: chisel
-    - name: Build and push Docker images
-      uses: docker/build-push-action@v1.0.1
-      with:
-        # Username used to log in to a Docker registry. If not set then no login will occur
-        username: jbednarik
-        # Password or personal access token used to log in to a Docker registry. If not set then no login will occur
-        password: inrxQWE
