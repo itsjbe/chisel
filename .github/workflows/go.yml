@@ -38,4 +38,4 @@ jobs:
         # Artifact name
         name: chisel
         # Directory containing files to upload
-        path: .
+        path: chisel
