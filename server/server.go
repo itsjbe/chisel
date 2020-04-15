@@ -12,10 +12,9 @@ import (
 
 	socks5 "github.com/armon/go-socks5"
 	"github.com/gorilla/websocket"
+	chshare "github.com/jpillora/chisel/share"
 	"github.com/jpillora/requestlog"
 	"golang.org/x/crypto/ssh"
-
-	"github.com/jpillora/chisel/share"
 )
 
 // Config is the configuration for the chisel service
@@ -160,6 +159,11 @@ func (s *Server) Close() error {
 	return s.httpServer.Close()
 }
 
+// GetFingerprint is used to access the server fingerprint
+func (s *Server) GetFingerprint() string {
+	return s.fingerprint
+}
+
 // authUser is responsible for validating the ssh user / password combination
 func (s *Server) authUser(c ssh.ConnMetadata, password []byte) (*ssh.Permissions, error) {
 	// check if user authenication is enable and it not allow all
@@ -177,4 +181,27 @@ func (s *Server) authUser(c ssh.ConnMetadata, password []byte) (*ssh.Permissions
 	// @note: this should probably have a lock on it given the map isn't thread-safe??
 	s.sessions.Set(string(c.SessionID()), user)
 	return nil, nil
+}
+
+// AddUser adds a new user into the server user index
+func (s *Server) AddUser(user, pass string, addrs ...string) error {
+	authorizedAddrs := make([]*regexp.Regexp, 0)
+
+	for _, addr := range addrs {
+		authorizedAddr, err := regexp.Compile(addr)
+		if err != nil {
+			return err
+		}
+
+		authorizedAddrs = append(authorizedAddrs, authorizedAddr)
+	}
+
+	u := &chshare.User{Name: user, Pass: pass, Addrs: authorizedAddrs}
+	s.users.AddUser(u)
+	return nil
+}
+
+// DeleteUser removes a user from the server user index
+func (s *Server) DeleteUser(user string) {
+	s.users.Del(user)
 }
