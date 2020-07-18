@@ -4,37 +4,38 @@ import (
 	"log"
 	"net/http"
 	"net/http/httptest"
+	"sync"
 	"testing"
 	"time"
-
-	"github.com/stretchr/testify/assert"
 )
 
 func TestCustomHeaders(t *testing.T) {
-	assert := assert.New(t)
+	//fake server
+	wg := sync.WaitGroup{}
+	wg.Add(1)
 	server := httptest.NewServer(http.HandlerFunc(func(rw http.ResponseWriter, req *http.Request) {
-		assert.Equal(req.Header.Get("Foo"), "Bar")
+		if req.Header.Get("Foo") != "Bar" {
+			t.Fatal("expected header Foo to be 'Bar'")
+		}
+		wg.Done()
 	}))
-	// Close the server when test finishes
 	defer server.Close()
+	//client
 	headers := http.Header{}
 	headers.Set("Foo", "Bar")
 	config := Config{
-		Fingerprint:      "",
-		Auth:             "",
 		KeepAlive:        time.Second,
-		MaxRetryCount:    0,
 		MaxRetryInterval: time.Second,
-		HTTPProxy:        "",
 		Server:           server.URL,
-		Remotes:          []string{"socks"},
+		Remotes:          []string{"9000"},
 		Headers:          headers,
 	}
 	c, err := NewClient(&config)
 	if err != nil {
 		log.Fatal(err)
 	}
-	if err = c.Run(); err != nil {
-		log.Fatal(err)
-	}
+	go c.Run()
+	//wait for test to complete
+	wg.Wait()
+	c.Close()
 }
