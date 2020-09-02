@@ -73,7 +73,7 @@ $ chisel --help
 
   Usage: chisel [command] [--help]
 
-  Version: 0.0.0-src (go1.14.5)
+  Version: 0.0.0-src (go1.14.6)
 
   Commands:
     server - runs chisel in server mode
@@ -129,7 +129,7 @@ $ chisel server --help
     specify a time with a unit, for example '5s' or '2m'. Defaults
     to '25s' (set to 0s to disable).
 
-    --proxy, Specifies another HTTP server to proxy requests to when
+    --backend, Specifies another HTTP server to proxy requests to when
     chisel receives a normal HTTP request. Useful for hiding chisel in
     plain sight.
 
@@ -155,6 +155,11 @@ $ chisel server --help
     or disable caching by setting this variable to "-". You can optionally
     provide a certificate notification email by setting CHISEL_LE_EMAIL.
 
+    --tls-ca, a path to a PEM encoded CA certificate bundle or a directory
+    holding multiple PEM encode CA certificate bundle files, which is used to 
+    validate client connections. The provided CA certificates will be used 
+    instead of the system roots. This is commonly used to implement mutual-TLS. 
+
     --pid Generate pid file in current working directory
 
     -v, Enable verbose logging
@@ -167,7 +172,7 @@ $ chisel server --help
       a SIGHUP to short-circuit the client reconnect timer
 
   Version:
-    0.0.0-src (go1.14.5)
+    0.0.0-src (go1.14.6)
 
   Read more:
     https://github.com/jpillora/chisel
@@ -264,6 +269,25 @@ $ chisel client --help
     --hostname, Optionally set the 'Host' header (defaults to the host
     found in the server url).
 
+    --tls-ca, An optional root certificate bundle used to verify the
+    chisel server. Only valid when connecting to the server with
+    "https" or "wss". By default, the operating system CAs will be used.
+
+    --tls-skip-verify, Skip server TLS certificate verification of
+    chain and host name (if TLS is used for transport connections to
+    server). If set, client accepts any TLS certificate presented by
+    the server and any host name in that certificate. This only affects
+    transport https (wss) connection. Chisel server's public key
+    may be still verified (see --fingerprint) after inner connection
+    is established.
+
+    --tls-key, a path to a PEM encoded private key used for client 
+    authentication (mutual-TLS).
+
+    --tls-cert, a path to a PEM encoded certificate matching the provided 
+    private key. The certificate must have client authentication 
+    enabled (mutual-TLS).
+
     --pid Generate pid file in current working directory
 
     -v, Enable verbose logging
@@ -276,7 +300,7 @@ $ chisel client --help
       a SIGHUP to short-circuit the client reconnect timer
 
   Version:
-    0.0.0-src (go1.14.5)
+    0.0.0-src (go1.14.6)
 
   Read more:
     https://github.com/jpillora/chisel
